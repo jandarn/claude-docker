@@ -56,11 +56,7 @@ RUN set -eux; \
 
 # Install Claude using the official setup script; fallback to npm package if needed.
 RUN set -eux; \
-    curl -fsSL https://claude.ai/install.sh | bash || true; \
-    if ! command -v claude >/dev/null 2>&1; then \
-      npm install -g @anthropic-ai/claude-code; \
-      npm cache clean --force; \
-    fi; \
+        curl -fsSL https://claude.ai/install.sh | bash || true; \
     command -v claude
 
 # Create a non-root user that mirrors host UID/GID when provided.

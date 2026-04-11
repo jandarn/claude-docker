@@ -82,8 +82,7 @@ $ python run.py
 
 - **Non-Root User**: Container runs under the `claude` user (UID/GID mapped to host).
 - **Restricted Volumes**:
-  - `./code-project` → Mounted at `/workspace` (RW).
-  - `~/.config/claude` → Mounted at `/home/claude/.config/claude` (RW).
+  - Personal Claude directory: Change on .env file, mounts on /home/claude (container).
   - Rest of system: Inaccessible.
 
 - **No Port Exposure**: Container does not expose ports to the host (internal communication only).
@@ -95,7 +94,6 @@ $ python run.py
 
 - Docker and Docker Compose installed.
 - Python 3.8+ (for `run.py`).
-- A valid Anthropic API Key.
 
 ---
 
@@ -123,5 +121,3 @@ python run.py
 ```
 
 ---
-
-
