@@ -21,13 +21,12 @@ graph TD
     Container -->|User: claude (Non-Root)| ClaudeCode[Claude Code CLI]
 
     subgraph Security
-    Container -.->|No access to| HostSystem[/Rest of Host System/]
-    Container -.->|No privileges| RootPriv[Root Privileges]
+        Container -.->|No access to| HostSystem[/Rest of Host System/]
+        Container -.->|No privileges| RootPriv[Root Privileges]
     end
 
     runpy[run.py] -->|Orchestration| Docker[Docker Engine]
     Docker -->|Start if necessary| Container
-    Container -->|Execute| ClaudeCode
 ```
 
 ---
