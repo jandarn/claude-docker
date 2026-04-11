@@ -105,15 +105,7 @@ git clone <your-repo>
 cd private-claude-env
 ```
 
-### 2. Configure the API Key
-
-Create a `.env` file in the root:
-
-```env
-ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
-```
-
-### 3. Run
+### 2. Run
 
 ```bash
 python run.py
