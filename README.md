@@ -1,0 +1,127 @@
+# 🛡️ Private Claude Code Environment
+
+A secure, isolated Docker environment to run Claude Code (Anthropic's CLI tool) privately. This project ensures the AI only has access to explicitly shared files, protecting the rest of your host operating system.
+
+---
+
+## 🎯 Main Objectives
+
+- **Security Isolation**:
+  - No root access: Process runs under the `claude` user (dynamic UID/GID).
+  - Limited access: Only read/write permissions on the /home/claude directory and its own configuration. Cannot access `/home`, `/etc`, or the host system.
+- **Smart Automation**: A single script (`run.py`) manages the container lifecycle (auto-start if stopped) and launches the Claude Code session opening a shell on the host with Claude started automatically.
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    Host[Host System (Your PC)] -->|Shared Volumes| Container[Docker Container (Ubuntu 24.04)]
+    Container -->|User: claude (Non-Root)| ClaudeCode[Claude Code CLI]
+
+    subgraph Security
+    Container -.->|No access to| HostSystem[/Rest of Host System/]
+    Container -.->|No privileges| RootPriv[Root Privileges]
+    end
+
+    runpy[run.py] -->|Orchestration| Docker[Docker Engine]
+    Docker -->|Start if necessary| Container
+    Container -->|Execute| ClaudeCode
+```
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── Dockerfile              # Base image: Ubuntu 24.04 + Node.js + Claude Code (user 'claude')
+├── docker-compose.yml      # Service definition, volumes, and security restrictions
+├── run.py                  # 🚀 Main script: Manages startup and execution
+├── code-project/           # 📂 Shared directory (Your secure workspace)
+├── .env                    # Environment variables (API KEY, etc.)
+└── README.md               # Documentation
+```
+
+---
+
+## 🚀 How It Works (`run.py`)
+
+The `run.py` script is the single entry point. Its logic is:
+
+1. **Check status**: Verifies if the `claude-code-dev` container is running.
+2. **Auto-start**: If inactive, executes `docker-compose up -d` to launch it.
+3. **Execution**: Injects the command to start the interactive Claude session inside the container.
+4. **Error handling**: Detects if the API Key is missing or if the container failed to start.
+
+---
+
+### Expected Behavior
+
+#### If container is stopped:
+
+```bash
+$ python run.py
+🔍 Container not detected. Starting secure environment...
+✅ Environment ready. Starting Claude Code session...
+(claude@container) $ _
+```
+
+#### If container is already active:
+
+```bash
+$ python run.py
+🔍 Container active. Connecting to existing session...
+(claude@container) $ _
+```
+
+---
+
+## 🔒 Security Measures Implemented
+
+- **Non-Root User**: Container runs under the `claude` user (UID/GID mapped to host).
+- **Restricted Volumes**:
+  - `./code-project` → Mounted at `/workspace` (RW).
+  - `~/.config/claude` → Mounted at `/home/claude/.config/claude` (RW).
+  - Rest of system: Inaccessible.
+
+- **No Port Exposure**: Container does not expose ports to the host (internal communication only).
+- **Limited Capabilities**: `no-new-privileges` and dropping unnecessary capabilities.
+
+---
+
+## 🛠️ Prerequisites
+
+- Docker and Docker Compose installed.
+- Python 3.8+ (for `run.py`).
+- A valid Anthropic API Key.
+
+---
+
+## ⚙️ Configuration
+
+### 1. Clone the repository
+
+```bash
+git clone <your-repo>
+cd private-claude-env
+```
+
+### 2. Configure the API Key
+
+Create a `.env` file in the root:
+
+```env
+ANTHROPIC_API_KEY=sk-ant-api03-your-key-here
+```
+
+### 3. Run
+
+```bash
+python run.py
+```
+
+---
+
+

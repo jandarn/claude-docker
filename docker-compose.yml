@@ -1,0 +1,49 @@
+name: ${NAME:-claude-code}
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        UID: ${LOCAL_UID:-1000}
+        GID: ${LOCAL_GID:-1000}
+        USERNAME: ${USERNAME}
+    image: ${NAME:-claude-code}:local
+    container_name: ${NAME:-claude-code}
+    restart: unless-stopped
+
+    # Do not expose ports - pure CLI
+
+    # Shared volumes
+    volumes:
+      - ${CLAUDE_DIR}:/home/${USERNAME}:rw
+
+    # Environment variables
+    environment:
+      - HOME=/home/${USERNAME}
+      - WORKSPACE=/home/${USERNAME}
+      - TERM=xterm-256color
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+    # Internet communication (default)
+    network_mode: bridge
+
+    # Resources (adjustable)
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: "1.0"
+
+    # Enter interactive mode
+    stdin_open: true
+    tty: true
+
+    # Initial command
+    command: /bin/bash
