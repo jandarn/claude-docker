@@ -12,9 +12,27 @@ import subprocess
 import sys
 from pathlib import Path
 
+
+
 PROJECT_DIR = Path(__file__).resolve().parent
 COMPOSE_FILE = PROJECT_DIR / "docker-compose.yml"
 ENV_FILE = PROJECT_DIR / ".env"
+ENV_EXAMPLE_FILE = PROJECT_DIR / ".env.example"
+
+
+def ensure_env_file_exists() -> None:
+	"""Ensure .env exists, creating it from .env.example on first run."""
+	if ENV_FILE.exists():
+		return
+
+	if not ENV_EXAMPLE_FILE.exists():
+		fail(f"Missing {ENV_FILE} and template {ENV_EXAMPLE_FILE}.")
+
+	try:
+		shutil.copy2(ENV_EXAMPLE_FILE, ENV_FILE)
+		ENV_EXAMPLE_FILE.unlink()
+	except OSError as error:
+		fail(f"Could not initialize {ENV_FILE.name} from {ENV_EXAMPLE_FILE.name}: {error}")
 
 def _owner_mode(path: Path) -> str:
 	stat = path.stat()
@@ -106,6 +124,7 @@ def ensure_writable_directory(path: Path, label: str) -> None:
 
 def _load_dotenv() -> dict[str, str]:
 	env_data: dict[str, str] = {}
+	ensure_env_file_exists()
 	if not ENV_FILE.exists():
 		return env_data
 

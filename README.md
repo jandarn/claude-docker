@@ -101,11 +101,32 @@ $ python run.py
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo>
-cd private-claude-env
+git clone git@github.com:onyxdream/claude-docker.git
+cd claude-docker
 ```
 
-### 2. Run
+### 2. Create an alias for `run.py` (Linux and Windows)
+
+#### Linux (bash/zsh)
+
+```bash
+echo "alias claude-secure='python3 /absolute/path/to/claude-docker/run.py'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+For `zsh`, replace `~/.bashrc` with `~/.zshrc`.
+
+#### Windows (PowerShell)
+
+```powershell
+if (!(Test-Path -Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
+Add-Content $PROFILE "`nfunction claude-secure { python C:\absolute\path\to\claude-docker\run.py }"
+. $PROFILE
+```
+
+After this, you can run `claude-secure` directly from your shell.
+
+### 3. Run with python
 
 ```bash
 python run.py
