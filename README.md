@@ -17,16 +17,16 @@ A secure, isolated Docker environment to run Claude Code (Anthropic's CLI tool) 
 
 ```mermaid
 graph TD
-    Host[Host System (Your PC)] -->|Shared Volumes| Container[Docker Container (Ubuntu 24.04)]
-    Container -->|User: claude (Non-Root)| ClaudeCode[Claude Code CLI]
+    Host["Host System (Your PC)"] -->|"Shared Volumes"| Container["Docker Container (Ubuntu 24.04)"]
+    Container -->|"User: claude (Non-Root)"| ClaudeCode["Claude Code CLI"]
 
     subgraph Security
-        Container -.->|No access to| HostSystem[/Rest of Host System/]
-        Container -.->|No privileges| RootPriv[Root Privileges]
+        Container -.->|"No access to"| HostSystem["Rest of Host System"]
+        Container -.->|"No privileges"| RootPriv["Root Privileges"]
     end
 
-    runpy[run.py] -->|Orchestration| Docker[Docker Engine]
-    Docker -->|Start if necessary| Container
+    runpy["run.py"] -->|"Orchestration"| Docker["Docker Engine"]
+    Docker -->|"Start if necessary"| Container
 ```
 
 ---
