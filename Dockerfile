@@ -2,8 +2,8 @@ FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG NODE_VERSION=22.22.2
-ARG UID=1000
-ARG GID=1000
+ARG UID=1001
+ARG GID=1005
 ARG USERNAME
 
 # Base OS packages and quality-of-life CLI tools for coding sessions.
@@ -31,7 +31,6 @@ RUN apt-get update \
         python3 \
         python3-pip \
         ripgrep \
-        sudo \
         tini \
         tree \
         unzip \
@@ -54,11 +53,6 @@ RUN set -eux; \
     node --version; \
     npm --version
 
-# Install Claude using the official setup script; fallback to npm package if needed.
-RUN set -eux; \
-        curl -fsSL https://claude.ai/install.sh | bash || true; \
-    command -v claude
-
 # Create a non-root user that mirrors host UID/GID when provided.
 RUN set -eux; \
     : "${USERNAME:?USERNAME build arg must be set (from .env)}"; \
@@ -77,11 +71,18 @@ RUN set -eux; \
         useradd --uid "${UID}" --gid "${group_name}" --create-home --shell /bin/bash "${USERNAME}"; \
     fi; \
     mkdir -p "/home/${USERNAME}/.config/claude" "/home/${USERNAME}/.claude/debug"; \
-    chown -R "${UID}:${GID}" "/home/${USERNAME}"
+    chown -R "${UID}:${GID}" "/home/${USERNAME}"; \
+    # Ensure no stale user-specific sudoers policy remains in rebuilt images.
+    rm -f "/etc/sudoers.d/${USERNAME}"
+
+# Install Claude as the target user so config and binaries live under /home/${USERNAME}, not /root.
+RUN set -eux; \
+    su - "${USERNAME}" -c 'export PATH="$HOME/.local/bin:$PATH"; curl -fsSL https://claude.ai/install.sh | bash || true; command -v claude'
 
 ENV HOME=/home/${USERNAME}
 ENV WORKSPACE=/home/${USERNAME}
 ENV TERM=xterm-256color
+ENV PATH=/home/${USERNAME}/.local/bin:${PATH}
 
 WORKDIR /home/${USERNAME}
 USER ${USERNAME}

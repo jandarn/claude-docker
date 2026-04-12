@@ -9,6 +9,7 @@ A secure, isolated Docker environment to run Claude Code (Anthropic's CLI tool) 
 - **Security Isolation**:
   - No root access: Process runs under the `claude` user (dynamic UID/GID).
   - Limited access: Only read/write permissions on the /home/claude directory and its own configuration. Cannot access `/home`, `/etc`, or the host system.
+- **Admin Capabilities**: The `claude` user has `sudo` privileges without password prompt (safe in an isolated container environment) to install packages or modify the container as needed.
 - **Smart Automation**: A single script (`run.py`) manages the container lifecycle (auto-start if stopped) and launches the Claude Code session opening a shell on the host with Claude started automatically.
 
 ---
@@ -89,7 +90,27 @@ $ python run.py
 
 ---
 
-## 🛠️ Prerequisites
+## � Admin Access for Container Modifications
+
+The `claude` user has **passwordless sudo** access within the container, allowing Claude to install packages, modify configurations, or perform other administrative tasks when needed:
+
+```bash
+# Inside the container, Claude can run:
+sudo apt update && sudo apt install -y some-package
+sudo systemctl restart service-name
+sudo nano /etc/some-config.conf
+```
+
+**Why passwordless?** The container is isolated from the host system. Granting sudo without password prompts allows Claude to work autonomously without requiring human intervention.
+
+**⚠️ Note**: If you need a specific admin password for the container, you can:
+
+1. Modify the Dockerfile to set a password during build
+2. Manually inside the container: `sudo passwd claude` (then remove NOPASSWD from sudoers if preferred)
+
+---
+
+## �🛠️ Prerequisites
 
 - Docker and Docker Compose installed.
 - Python 3.8+ (for `run.py`).
@@ -131,5 +152,19 @@ After this, you can run `claude-secure` directly from your shell.
 ```bash
 python run.py
 ```
+
+### 4. Run as root for troubleshooting
+
+If you need to do troubleshooting work inside the container or install packages more easily, you can start an interactive root shell instead of launching Claude:
+
+```bash
+python3 run.py --root
+```
+
+This is useful for tasks such as:
+
+- Installing packages with `apt`
+- Inspecting or modifying system files inside the container
+- Debugging container-level issues before returning to the normal Claude session
 
 ---

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import os
 import pwd
 import grp
@@ -18,6 +19,19 @@ PROJECT_DIR = Path(__file__).resolve().parent
 COMPOSE_FILE = PROJECT_DIR / "docker-compose.yml"
 ENV_FILE = PROJECT_DIR / ".env"
 ENV_EXAMPLE_FILE = PROJECT_DIR / ".env.example"
+
+
+def parse_args() -> argparse.Namespace:
+	"""Parse command line arguments for interactive session mode."""
+	parser = argparse.ArgumentParser(
+		description="Start or reuse the local Claude container and open a shell session."
+	)
+	parser.add_argument(
+		"--root",
+		action="store_true",
+		help="Open an interactive root shell instead of launching claude.",
+	)
+	return parser.parse_args()
 
 
 def ensure_env_file_exists() -> None:
@@ -262,16 +276,27 @@ def ensure_container_running() -> None:
 	print("✅ Environment ready. Starting Claude Code session...")
 
 
-def launch_interactive_session() -> None:
+def launch_interactive_session(*, root_mode: bool = False) -> None:
 	service_name = get_service_name()
 	# Replace the Python process with docker compose exec for a clean terminal handoff.
-	exec_cmd = [
-		"docker",
-		"compose",
-		"exec",
-		service_name,
-		"claude",
-	]
+	if root_mode:
+		exec_cmd = [
+			"docker",
+			"compose",
+			"exec",
+			"--user",
+			"root",
+			service_name,
+			"bash",
+		]
+	else:
+		exec_cmd = [
+			"docker",
+			"compose",
+			"exec",
+			service_name,
+			"claude",
+		]
 	os.chdir(PROJECT_DIR)
 	try:
 		os.execvp(exec_cmd[0], exec_cmd)
@@ -280,10 +305,11 @@ def launch_interactive_session() -> None:
 
 
 def main() -> None:
+	args = parse_args()
 	ensure_runtime_prereqs()
 	preflight_checks()
 	ensure_container_running()
-	launch_interactive_session()
+	launch_interactive_session(root_mode=args.root)
 
 
 if __name__ == "__main__":
