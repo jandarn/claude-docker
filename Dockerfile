@@ -75,6 +75,16 @@ RUN set -eux; \
     # Ensure no stale user-specific sudoers policy remains in rebuilt images.
     rm -f "/etc/sudoers.d/${USERNAME}"
 
+# Install GitHub CLI via official apt repository.
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        > /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends gh \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Claude as the target user so config and binaries live under /home/${USERNAME}, not /root.
 RUN set -eux; \
     su - "${USERNAME}" -c 'export PATH="$HOME/.local/bin:$PATH"; curl -fsSL https://claude.ai/install.sh | bash || true; command -v claude'
