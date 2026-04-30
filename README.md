@@ -168,3 +168,9 @@ This is useful for tasks such as:
 - Debugging container-level issues before returning to the normal Claude session
 
 ---
+
+## 📚 Additional Guides
+
+Optional setup guides are available in the [`docs/`](./docs/) folder:
+
+- [GitHub Integration](./docs/github-integration.md) — Allow Claude to create branches and open PRs on your repositories
