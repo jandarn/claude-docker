@@ -122,7 +122,7 @@ sudo nano /etc/some-config.conf
 ### 1. Clone the repository
 
 ```bash
-git clone git@github.com:onyxdream/claude-docker.git
+git clone git@github.com:jandarn/claude-docker.git
 cd claude-docker
 ```
 
