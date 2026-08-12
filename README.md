@@ -12,7 +12,6 @@ A secure, isolated Docker environment to run Claude Code (Anthropic's CLI tool) 
 - **Admin Capabilities**: The `claude` user has `sudo` privileges without password prompt (safe in an isolated container environment) to install packages or modify the container as needed.
 - **Smart Automation**: A single script (`run.py`) manages the container lifecycle (auto-start if stopped) and launches the Claude Code session opening a shell on the host with Claude started automatically.
 
----
 
 ## 🏗️ Architecture
 
