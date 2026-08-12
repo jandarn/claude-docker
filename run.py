@@ -311,6 +311,5 @@ def main() -> None:
 	ensure_container_running()
 	launch_interactive_session(root_mode=args.root)
 
-
 if __name__ == "__main__":
 	main()
