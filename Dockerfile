@@ -2,9 +2,12 @@ FROM ubuntu:24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG NODE_VERSION=22.22.2
-ARG UID=1001
+ARG UID=1000
 ARG GID=1005
 ARG USERNAME
+
+# run.py compares these labels with the host UID/GID and rebuilds the image when they differ.
+LABEL claude.uid="${UID}" claude.gid="${GID}"
 
 # Base OS packages and quality-of-life CLI tools for coding sessions.
 RUN apt-get update \
@@ -64,9 +67,9 @@ RUN set -eux; \
     fi; \
     if id -u "${UID}" >/dev/null 2>&1; then \
         user_name="$(getent passwd "${UID}" | cut -d: -f1)"; \
-        usermod -d "/home/${USERNAME}" -m "${user_name}" || true; \
-        usermod -l "${USERNAME}" "${user_name}" || true; \
-        usermod -g "${group_name}" "${USERNAME}" || true; \
+        usermod -d "/home/${USERNAME}" -m "${user_name}"; \
+        usermod -l "${USERNAME}" "${user_name}"; \
+        usermod -g "${group_name}" "${USERNAME}"; \
     else \
         useradd --uid "${UID}" --gid "${group_name}" --create-home --shell /bin/bash "${USERNAME}"; \
     fi; \
